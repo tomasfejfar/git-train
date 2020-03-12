@@ -1,0 +1,21 @@
+sudo: required
+
+language: bash
+
+services:
+  - docker
+
+before_script:
+  - docker -v
+  - docker build -t $APP_IMAGE .
+  - docker run $APP_IMAGE composer ci
+
+script:
+  - skip
+
+#deploy:
+#  provider: script
+#  skip_cleanup: true
+#  script: ./deploy.sh
+#  on:
+#    tags: true
