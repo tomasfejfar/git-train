@@ -18,7 +18,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 	&& sed -i 's/^# *\(en_US.UTF-8\)/\1/' /etc/locale.gen \
 	&& locale-gen \
 	&& chmod +x /tmp/composer-install.sh \
-	&& /tmp/composer-install.sh
+	&& /tmp/composer-install.sh \
+	&& composer global require hirak/prestissimo
 
 ENV LANGUAGE=en_US.UTF-8
 ENV LANG=en_US.UTF-8
