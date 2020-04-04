@@ -9,6 +9,8 @@ use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use tomasfejfar\GitTrain\Repository\BranchesRepository;
+use tomasfejfar\GitTrain\Repository\TrainRepository;
 
 class RebaseCommand extends Command
 {
@@ -30,24 +32,17 @@ class RebaseCommand extends Command
 
         $table = new Table($output);
         $firstBranch = $input->getArgument(self::ARG_FIRST_BRANCH);
-        $branchesContainingCommit = $this->git->getBranchesContainingCommit($firstBranch);
-        $sortedBranches = $this->sortBranchesThatContainCommit($branchesContainingCommit);
-        $table->addRow($sortedBranches);
+        $branchRepo = new BranchesRepository($this->git);
+        $trainRepo = new TrainRepository($branchRepo, $this->git);
+        $train = $trainRepo->getRebaseTrain('test');
+
+        die(var_dump(json_encode($train, \JSON_PRETTY_PRINT)));
+
+        //$this->writeStatus()
         $table->render();
 
         return 0;
     }
 
-    private function sortBranchesThatContainCommit(array $branchesContainingCommit)
-    {
-        usort(
-            $branchesContainingCommit,
-            function ($first, $second) {
-                $countFirst = count($this->git->getBranchesContainingCommit($first));
-                $countSecond = count($this->git->getBranchesContainingCommit($second));
-                return $countSecond <=> $countFirst;
-            }
-        );
-        return $branchesContainingCommit;
-    }
+
 }
