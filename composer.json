@@ -1,6 +1,7 @@
 {
     "require": {
         "php": "^7.4",
+        "ext-json": "*",
         "symfony/console": "^5.0",
         "symfony/process": "^5.0"
     },
@@ -16,8 +17,8 @@
         }
     },
     "autoload-dev": {
+        "tomasfejfar\\GitTrain\\Tests\\": "tests/phpunit/",
         "psr-4": {
-            "tomasfejfar\\GitTrain\\Tests\\": "tests/phpunit/",
             "tomasfejfar\\GitTrain\\FunctionalTests\\": "tests/functional/"
         }
     },

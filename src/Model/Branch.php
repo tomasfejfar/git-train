@@ -10,6 +10,7 @@ class Branch implements JsonSerializable
 {
 
     const STATUS_FOUND = 'found';
+    const STATUS_REBASED = 'rebased';
 
     /** @var string */
     private string $name;
@@ -29,6 +30,15 @@ class Branch implements JsonSerializable
         $this->name = $name;
         $this->hash = $hash;
         $this->status = $status;
+    }
+
+    public static function fromSerialized($branch)
+    {
+        return new self(
+            $branch['name'],
+            $branch['hash'],
+            $branch['status']
+        );
     }
 
     public function getName(): string
@@ -53,5 +63,10 @@ class Branch implements JsonSerializable
             'hash' => $this->getHash(),
             'status' => $this->getStatus(),
         ];
+    }
+
+    public function setRebased()
+    {
+        $this->status = self::STATUS_REBASED;
     }
 }

@@ -4,18 +4,17 @@ declare(strict_types = 1);
 
 namespace tomasfejfar\GitTrain;
 
+use InvalidArgumentException;
 use Symfony\Component\Process\Process;
 
 class Git
 {
-
     /** @var string */
     private $repositoryPath;
 
     public function __construct(
         string $repositoryPath
-    )
-    {
+    ) {
         $this->setRepositoryPath($repositoryPath);
     }
 
@@ -103,9 +102,44 @@ class Git
         return trim($this->runGitCommand($command)->getOutput());
     }
 
+    public function checkout(string $branch): Process
+    {
+        return $this->runGitCommand([
+            'checkout',
+            $branch,
+        ]);
+    }
+
+    public function rebase(string $rebaseTarget, array $args = []): Process
+    {
+        if ($args) {
+            foreach ($args as $arg) {
+                $allowedArgs = [
+                    'interactive',
+                    'continue',
+                    'abort',
+                ];
+                if (!in_array($arg, $allowedArgs)) {
+                    throw new InvalidArgumentException(sprintf(
+                        'Unknown rebase argument "%s"',
+                        $arg
+                    ));
+                }
+            }
+            $args = array_map(fn($arg) => '--' . $arg, $args);
+        }
+
+        return $this->runGitCommand(array_merge(
+            [
+                'rebase',
+                $rebaseTarget,
+            ],
+            $args
+        ));
+    }
+
     private function findGitRoot($path): string
     {
-
         $command = [
             $this->getGitExecutable(),
             'rev-parse',
@@ -119,5 +153,10 @@ class Git
     private function getGitExecutable()
     {
         return 'git';
+    }
+
+    public function getRepositoryPath(): string
+    {
+        return $this->repositoryPath;
     }
 }
