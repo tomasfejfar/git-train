@@ -6,17 +6,31 @@ namespace tomasfejfar\GitTrain;
 
 use Symfony\Component\Process\Process;
 
-class GitHelper
+class Git
 {
 
     /** @var string */
-    private $path;
+    private $repositoryPath;
 
     public function __construct(
-        string $path
+        string $repositoryPath
     )
     {
-        $this->setPath($path);
+        $this->setRepositoryPath($repositoryPath);
+    }
+
+    /**
+     * @param string $output
+     * @return array
+     */
+    public static function processBranchOutput(string $output): array
+    {
+        $branches = explode(
+            "\n", trim($output)
+        );
+
+        $branches = array_map(fn($value) => trim($value, " \t\n\r\0\x0B*"), $branches);
+        return $branches;
     }
 
     public function getCurrentBranch()
@@ -42,23 +56,38 @@ class GitHelper
             ]
         )->getOutput();
 
-        $branches = explode(
-            "\n", trim($output)
-        );
-
-        $branches = array_map(fn($value) => trim($value, " \t\n\r\0\x0B*"), $branches);
-        return $branches;
+        return self::processBranchOutput($output);
     }
 
-    public function setPath(string $path): void
+    public function getBranchesContainingCommit(string $commit): array
     {
-        $root = $this->findGitRoot($path);
-        $this->path = $root;
+        $parsedCommit = $this->getGitCommandStringResult(
+            [
+                'rev-parse',
+                '--abbrev-ref',
+                $commit,
+            ]
+        );
+
+        $output = $this->runGitCommand(
+            [
+                'branch',
+                '--contains',
+                $parsedCommit,
+            ]
+        )->getOutput();
+        return self::processBranchOutput($output);
+    }
+
+    public function setRepositoryPath(string $repositoryPath): void
+    {
+        $root = $this->findGitRoot($repositoryPath);
+        $this->repositoryPath = $root;
     }
 
     private function runCommand(array $command): Process
     {
-        $process = new Process($command, $this->path);
+        $process = new Process($command, $this->repositoryPath);
         $process->mustRun();
         return $process;
     }
@@ -67,6 +96,11 @@ class GitHelper
     {
         $command = array_merge([$this->getGitExecutable()], $command);
         return $this->runCommand($command);
+    }
+
+    public function getGitCommandStringResult(array $command): string
+    {
+        return trim($this->runGitCommand($command)->getOutput());
     }
 
     private function findGitRoot($path): string
