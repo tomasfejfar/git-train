@@ -25,12 +25,12 @@ class TrainRepository
         $this->git = $git;
     }
 
-    public function getRebaseTrain(string $rootBranchName): Train
+    public function getRebaseTrain(string $rootBranchName, string $rebaseRoot): Train
     {
         $branchesContainingCommit = $this->git->getBranchesContainingCommit($rootBranchName);
         $sorted = $this->sortBranchesThatContainCommit($branchesContainingCommit);
 
-        $train = new Train();
+        $train = new Train($this->branchesRepository->getBranch($rebaseRoot), $rebaseRoot);
         foreach ($sorted as $branch) {
             $train->addBranch($this->branchesRepository->getBranch($branch));
         }

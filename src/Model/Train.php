@@ -14,18 +14,23 @@ class Train implements JsonSerializable
     /** @var Branch[] */
     private array $branches;
 
+    /** @var Branch */
+    private Branch $rebaseRoot;
+
     /** @var string */
     private string $status;
 
     public function __construct(
+        Branch $rebaseRoot,
         ?string $status = null
     ) {
+        $this->rebaseRoot = $rebaseRoot;
         $this->status = $status ?? self::STATUS_CREATED;
     }
 
     public static function fromSerialized(array $deserializedJson): self
     {
-        $train = new self($deserializedJson['status']);
+        $train = new self(Branch::fromSerialized($deserializedJson['rebaseRoot']), $deserializedJson['status']);
         foreach ($deserializedJson['branches'] as $branch) {
             $train->addBranch(Branch::fromSerialized($branch));
         }

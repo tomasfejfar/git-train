@@ -64,7 +64,7 @@ class RebaseCommand extends Command
         if ($isContinue) {
             $train = $this->statusRepo->readStatus();
         } else {
-            $train = $this->trainRepo->getRebaseTrain('test');
+            $train = $this->trainRepo->getRebaseTrain($firstBranch, $rebaseTarget);
         }
 
         $output->writeln(sprintf(
