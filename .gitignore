@@ -1,3 +1,6 @@
 /vendor
 /.idea
 /data
+
+dataupstream/*
+backup/*

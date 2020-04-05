@@ -4,19 +4,18 @@ declare(strict_types = 1);
 
 namespace tomasfejfar\GitTrain\Repository;
 
+use Exception;
 use RuntimeException;
 use tomasfejfar\GitTrain\Git;
 use tomasfejfar\GitTrain\Model\Train;
 
 class StatusRepository
 {
-
     private Git $git;
 
     public function __construct(
         Git $git
-    )
-    {
+    ) {
         $this->git = $git;
     }
 
@@ -55,5 +54,12 @@ class StatusRepository
             ]
         );
         return $statusFile;
+    }
+
+    public function removeStatusFile()
+    {
+        if (!unlink($this->getStatusFilePath())) {
+            throw new Exception('Failed to unlink "%s"', $this->getStatusFilePath());
+        }
     }
 }

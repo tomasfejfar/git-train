@@ -5,10 +5,13 @@ declare(strict_types = 1);
 namespace tomasfejfar\GitTrain;
 
 use InvalidArgumentException;
+use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
 class Git
 {
+    const RESET_HARD = 'hard';
+
     /** @var string */
     private $repositoryPath;
 
@@ -158,5 +161,41 @@ class Git
     public function getRepositoryPath(): string
     {
         return $this->repositoryPath;
+    }
+
+    public function isBranchSameAsBranch($branch, string $otherBranch): bool
+    {
+        try {
+            $hashBranch = $this->getGitCommandStringResult(['rev-parse', $branch]);
+            $hashOtherBranch = $this->getGitCommandStringResult(['rev-parse', $otherBranch]);
+        } catch (ProcessFailedException $e) {
+            return false;
+        }
+        return $hashBranch === $hashOtherBranch;
+    }
+
+    public function reset(string $where, string $how)
+    {
+        $this->getGitCommandStringResult(['reset', '--' . $how, $where]);
+    }
+
+    public function getHash(string $treeish)
+    {
+        return $this->getGitCommandStringResult(['rev-parse', '--short', $treeish]);
+    }
+
+    public function push(?string $branch = null, ?string $remote = null, bool $forceWithLease = false): Process
+    {
+        $command = ['push'];
+        if ($remote) {
+            array_push($command,$remote);
+        }
+        if ($branch) {
+            array_push($command, $branch);
+        }
+        if ($forceWithLease) {
+            array_push($command, '--force-with-lease');
+        }
+        return $this->runGitCommand($command);
     }
 }

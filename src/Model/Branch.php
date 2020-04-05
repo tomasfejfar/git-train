@@ -10,7 +10,9 @@ class Branch implements JsonSerializable
 {
 
     const STATUS_FOUND = 'found';
+    const STATUS_PUSHED = 'pushed';
     const STATUS_REBASED = 'rebased';
+    const STATUS_REVIEWED = 'reviewed';
 
     /** @var string */
     private string $name;
@@ -68,5 +70,32 @@ class Branch implements JsonSerializable
     public function setRebased()
     {
         $this->status = self::STATUS_REBASED;
+    }
+
+    public function setReviewed()
+    {
+        $this->status = self::STATUS_REVIEWED;
+    }
+
+    public function setPushed()
+    {
+        $this->status = self::STATUS_PUSHED;
+    }
+
+    public function isRebased(): bool
+    {
+        return in_array($this->status, [
+            self::STATUS_REBASED,
+            self::STATUS_REVIEWED,
+            self::STATUS_PUSHED
+        ]);
+    }
+
+    public function isReviewed()
+    {
+        return in_array($this->status, [
+            self::STATUS_REVIEWED,
+            self::STATUS_PUSHED
+        ]);
     }
 }
