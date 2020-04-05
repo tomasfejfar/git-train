@@ -4,9 +4,11 @@ declare(strict_types = 1);
 
 namespace tomasfejfar\GitTrain;
 
+use Exception;
 use InvalidArgumentException;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
+use const PHP_EOL;
 
 class Git
 {
@@ -19,6 +21,19 @@ class Git
         string $repositoryPath
     ) {
         $this->setRepositoryPath($repositoryPath);
+        $process = new Process(['git', 'config', 'user.name'], $this->repositoryPath);
+        $exitCode = $process->run();
+        if ($exitCode !== 0) {
+            throw new Exception(
+                'You need to have user.name set. Either set or mount your .gitconfig.' . PHP_EOL . PHP_EOL . 'git config --global user.name "Your Name"'
+            );
+        }
+        $process = new Process(['git', 'config', 'user.email'], $this->repositoryPath);
+        $exitCode = $process->run();
+        if ($exitCode !== 0) {
+            throw new Exception(
+                'You need to have user.email set. Either set or mount your .gitconfig.' . PHP_EOL . PHP_EOL . 'git config --global user.email "you@example.com"');
+        }
     }
 
     /**
