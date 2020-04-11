@@ -197,7 +197,7 @@ class RebaseCommand extends Command
             $this->output->writeln('Please review the diff from following command' . PHP_EOL);
             $command = sprintf(
                 'git range-diff %s %s %s',
-                escapeshellarg($previousBranch->getName()),
+                escapeshellarg($train->getRebaseRoot()->getName()),
                 escapeshellarg($upstream),
                 escapeshellarg($currentBranch->getName())
             );
